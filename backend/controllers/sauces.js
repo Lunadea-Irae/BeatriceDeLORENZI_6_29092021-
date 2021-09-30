@@ -34,7 +34,6 @@ exports.createSauce = (req, res, next) => {
 };
 
 //put/:id
-/* */
 exports.modifySauce = (req, res, next) => {
 
   const sauceObject = req.file ?
