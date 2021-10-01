@@ -99,7 +99,7 @@ exports.addLikeToSauce = (req, res, next) => {
         }
 
         //...sauce do not work ?
-        Sauce.findByIdAndUpdate(req.params.id, { Sauce, _id: req.params.id, likes: sauce.likes, dislikes: sauce.dislikes, usersLiked: sauce.usersLiked, usersDisliked: sauce.usersDisliked })
+        Sauce.findByIdAndUpdate(req.params.id, { ...sauce})
             .then(() => res.status(201).json({ message: 'Votre vote a bien été enregistré !' }))
             .catch(error => res.status(400).json({ error }));
     })
