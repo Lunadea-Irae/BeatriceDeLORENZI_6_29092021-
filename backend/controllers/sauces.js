@@ -10,9 +10,7 @@ exports.getAllSauce = (req, res, next) => {
 
 //get/:id
 exports.getOneSauce = (req, res, next) => {
-    Sauce.findOne({
-        _id: req.params.id
-    })
+    Sauce.findById(req.params.id)
         .then((sauce) => { res.status(200).json(sauce); })
         .catch((error) => { res.status(404).json({ error: error }); });
 };
@@ -35,63 +33,79 @@ exports.createSauce = (req, res, next) => {
 
 //put/:id
 exports.modifySauce = (req, res, next) => {
+    Sauce.findById(req.params.id)
+        .then(sauce => {
+            const filename = sauce.imageUrl.split('/images/')[1];
+            fs.unlink(`images/${filename}`, () => { console.log("image supprimée") });
+        });
+    const sauceObject = req.file ?
+        {
+            ...JSON.parse(req.body.sauce),
+            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        } : { ...req.body };
 
-  const sauceObject = req.file ?
-  {
-    ...JSON.parse(req.body.sauce),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-  } : { ...req.body };
-Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-  .then(() => res.status(200).json({ message: 'Sauce modifiée !'}))
-  .catch(error => res.status(400).json({ error }));
+    Sauce.findByIdAndUpdate(req.params.id, { ...sauceObject, _id: req.params.id })
+        .then(() => res.status(200).json({ message: 'Sauce modifiée !' }))
+        .catch(error => res.status(400).json({ error }));
 };
 
 //delete/:id
 exports.deleteSauce = (req, res, next) => {
-    Sauce.findOne({ _id: req.params.id })
-      .then(sauce => {
-        const filename = sauce.imageUrl.split('/images/')[1];
-        fs.unlink(`images/${filename}`, () => {
-          Sauce.deleteOne({ _id: req.params.id })
-            .then(() => res.status(200).json({ message: 'Sauce supprimée !'}))
-            .catch(error => res.status(400).json({ error }));
-        });
-      })
-      .catch(error => res.status(500).json({ error }));
-  };
+    Sauce.findById(req.params.id)
+        .then(sauce => {
+            const filename = sauce.imageUrl.split('/images/')[1];
+            fs.unlink(`images/${filename}`, () => {
+                Sauce.findByIdAndDelete(req.params.id)
+                    .then(() => res.status(200).json({ message: 'Sauce supprimée !' }))
+                    .catch(error => res.status(400).json({ error }));
+            });
+        })
+        .catch(error => res.status(500).json({ error }));
+};
 
 
 
 //post/:id/like
 exports.addLikeToSauce = (req, res, next) => {
+
     //si like = 1 => add to [usersLiked], if =0 => remove in arrays, if =-1 => add to [usersDisliked]
     //foreach [usersLiked]=> +1 to likes & foreach [usersDisliked]=> +1 to dislikes
-    const sauce = Sauce.findOne({ _id: req.params.id })
-    let field;
-    switch (req.body.like) {
-        case 1:
-            field = usersLiked;
-            sauce.usersLiked.push(req.body.userID)
-            //add to [usersLiked]
-            //updateOne ? findOneAndUpdate ?
+    Sauce.findById(req.params.id).then(sauce => {
+        switch (req.body.like) {
+            case 1:
 
-            break;
-        case -1:
-            field = usersDisliked;
-            sauce.usersDisliked.push(req.body.userID);
-            //add to [usersDisliked]
-            break;
-        case 0://remove in arrays
-            let index = sauce.usersLiked.indexOf(req.body.userID);
-            if (index !== -1) {
-                sauce.usersLiked.splice(index, 1);
-                //pull ?
-            } else {
-                index = sauce.usersDisliked.indexOf(req.body.userID);
-                sauce.usersDisliked.splice(index, 1);
-                //pull ?
-            }
-            break;
-        default: console.error(error);
-    }
+                sauce.usersLiked.push(req.body.userId);
+                //add to [usersLiked]
+                //updateOne ? findOneAndUpdate ?
+
+                sauce.likes += 1;
+                break;
+            case -1:
+                sauce.usersDisliked.push(req.body.userId);
+                //add to [usersDisliked]
+                sauce.likes += -1;
+                break;
+            case 0://remove in arrays
+                let index = sauce.usersLiked.indexOf(req.body.userId);
+                if (index !== -1) {
+                    sauce.usersLiked.splice(index, 1);
+                    //pull ?
+                    sauce.likes += -1;
+                } else {
+                    index = sauce.usersDisliked.indexOf(req.body.userId);
+                    sauce.usersDisliked.splice(index, 1);
+                    //pull ?
+                    sauce.likes += 1;
+                }
+                break;
+        }
+
+        //...sauce do not work ?
+        Sauce.findByIdAndUpdate(req.params.id, { Sauce, _id: req.params.id, likes: sauce.likes, dislikes: sauce.dislikes, usersLiked: sauce.usersLiked, usersDisliked: sauce.usersDisliked })
+            .then(() => res.status(201).json({ message: 'Votre vote a bien été enregistré !' }))
+            .catch(error => res.status(400).json({ error }));
+    })
+        .catch(error => res.status(500).json({ error }));
+
+
 };
