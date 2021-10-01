@@ -73,17 +73,15 @@ exports.addLikeToSauce = (req, res, next) => {
     Sauce.findById(req.params.id).then(sauce => {
         switch (req.body.like) {
             case 1:
-
                 sauce.usersLiked.push(req.body.userId);
                 //add to [usersLiked]
                 //updateOne ? findOneAndUpdate ?
-
                 sauce.likes += 1;
                 break;
             case -1:
                 sauce.usersDisliked.push(req.body.userId);
                 //add to [usersDisliked]
-                sauce.likes += -1;
+                sauce.dislikes += 1;
                 break;
             case 0://remove in arrays
                 let index = sauce.usersLiked.indexOf(req.body.userId);
@@ -95,7 +93,7 @@ exports.addLikeToSauce = (req, res, next) => {
                     index = sauce.usersDisliked.indexOf(req.body.userId);
                     sauce.usersDisliked.splice(index, 1);
                     //pull ?
-                    sauce.likes += 1;
+                    sauce.dislikes += -1;
                 }
                 break;
         }
