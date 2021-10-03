@@ -18,6 +18,7 @@ exports.getOneSauce = (req, res, next) => {
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
     delete sauceObject._id;
+    if(!/[^<>$#+]/.test(Object.values(sauceObject).join(''))){
     const sauce = new Sauce({
         ...sauceObject,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
@@ -28,7 +29,10 @@ exports.createSauce = (req, res, next) => {
     });
     sauce.save()
         .then(() => { res.status(201).json({ message: 'Sauce enregistrée avec succés !' }); })
-        .catch((error) => { res.status(400).json({ error: error }); });
+        .catch((error) => { res.status(400).json({ error: error.message }); });}
+        else{
+            res.status(400).json({message:"Veuillez vérifier que vos entrées ne contiennent pas de caractères spéciaux."});
+        }
 };
 
 //put/:id
