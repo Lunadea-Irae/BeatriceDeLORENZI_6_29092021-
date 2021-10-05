@@ -1,4 +1,4 @@
-# Welcome on the ![Piicante](./) Project !
+# Welcome on the ![Piicante](./images_readme/PiiquanteLogo.png) Project !
 
 ## Prerequisites
 You will need to have **Node**, **Angular CLI 7.0.2.** and **npm** installed locally on your machine.
