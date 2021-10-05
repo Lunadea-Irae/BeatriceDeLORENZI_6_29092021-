@@ -11,5 +11,5 @@ const userSchema = mongoose.Schema({
     password: {type: String, require: true,} //mot de passe de l'utilisateur haché
 });
 
-userSchema.plugin(uniqueValidator, { message: 'Cet {PATH} est déjà utilisé sur ce site.' });
+userSchema.plugin(uniqueValidator, { message: 'Cet email est déjà utilisé sur ce site.' });
 module.exports = mongoose.model('User', userSchema);
