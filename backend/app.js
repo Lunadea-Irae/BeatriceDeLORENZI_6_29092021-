@@ -1,4 +1,5 @@
 const express = require('express');
+const helmet = require("helmet");
 const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -6,6 +7,8 @@ const sauceRoutes = require('./routes/sauces');
 const userRoutes = require('./routes/user');
 const path = require('path');
 
+
+app.use(helmet());
 app.use(express.json());
 mongoose.connect('mongodb+srv://admin:openclassrooms@piicante.gyqcq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
     {
