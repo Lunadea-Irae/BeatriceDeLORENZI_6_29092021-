@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const uniqueValidator = require('@vgdaut/mongoose-unique-validator');
+const uniqueValidator = require('mongoose-unique-validator');
 
 const sauceSchema = mongoose.Schema({
     userId: { type: String, required: true }, // l'identifiant MongoDB unique de l'utilisateur qui a créé la sauce

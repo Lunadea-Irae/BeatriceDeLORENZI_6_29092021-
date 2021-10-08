@@ -9,7 +9,8 @@ schema
     .is().max(100)                                  // Maximum length 100
     .has().uppercase()                              // Must have uppercase letters
     .has().lowercase()                              // Must have lowercase letters
-    .has().digits(2)                                // Must have at least 2 digits
+    .has().digits(1)                                // Must have at least 1 digits
+    .has().symbols(1)                               // Must have at least 1 symbol
     .has().not().spaces()                           // Should not have spaces
     .is().not().oneOf(['Passw0rd', 'Password123']); // Blacklist these values
 
@@ -28,7 +29,7 @@ exports.signup = (req, res, next) => {
                     .catch(error => res.status(400).json({ message: error.message.split(': ')[2] }));
             })
             .catch(error => res.status(500).json({ error }))}
-            else{res.status(400).json({message:"Pour votre sécurité, votre mot de passe doit contenir : 8 caractères au moins, des minuscules, des majuscules, au moins deux caractères spéciaux et aucun espace. Veuillez réessayer avec un nouveau mot de passe sécurisé."})}
+            else{res.status(400).json({message:"Pour votre sécurité, votre mot de passe doit contenir : 8 caractères au moins, des minuscules, des majuscules, des chiffres, des caractères spéciaux et aucun espace. Veuillez réessayer avec un nouveau mot de passe sécurisé."})}
 };
 
 
@@ -41,7 +42,7 @@ exports.login = (req, res, next) => {
             bcrypt.compare(req.body.password, user.password)
                 .then(valid => {
                     if (!valid) {
-                        return res.status(401).json({ error: 'Mot de passe incorrect !' });
+                        return res.status(401).json({ error:'Mot de passe incorrect !'});
                     }
 
                     res.status(200).json({
